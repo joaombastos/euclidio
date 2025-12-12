@@ -1,0 +1,57 @@
+MIDI MAPPING
+
+MIDI CHANNEL
+CHANNEL 10 
+
+ENCODER CONTROLS
+DOUBLE CLICK  | NOTE 49
+LONG PRESS    | NOTE 50
+
+CC (Control Change)
+CC 19  | VELOCITY (0-127)
+CC 20  | STEPS (0-127 → 1-32)
+CC 21  | HITS (0-127 → 1-32)
+CC 22  | OFFSET (0-127 → 0-31)
+CC 23  | NOTE (0-127)
+CC 24  | MIDI CHANNEL (0-127 → 0-15)
+CC 25  | RESOLUTION (0-127)
+CC 26  | TRACK (0-127 → track 0-7)
+NOTE 77 | PLAY/STOP ( 0-127)
+CC 28  | TEMPO (0-127 → 30-240 BPM)
+CC 31  | NOTE_LENGTH (0-127 → 50-700 ms)
+NOTES 76..83 | DUB per-track (toggle enable/disable por track)
+
+Per-track mapping:
+- NOTE 76 → toggle DUB track 0
+- NOTE 77 → toggle DUB track 1
+- NOTE 78 → toggle DUB track 2
+- NOTE 79 → toggle DUB track 3
+- NOTE 80 → toggle DUB track 4
+- NOTE 81 → toggle DUB track 5
+- NOTE 82 → toggle DUB track 6
+- NOTE 83 → toggle DUB track 7
+
+ROUTING MATRIX (51-65)
+DIN1 Input / Output
+DIN1→OUT1 | NOTE 51
+DIN1→OUT2 | NOTE 52
+DIN1→OUT3 | NOTE 53
+DIN2 Input / Output
+DIN2→OUT1 | NOTE 54
+DIN2→OUT2 | NOTE 55
+DIN2→OUT3 | NOTE 56
+DIN3 Input / Output
+DIN3→OUT1 | NOTE 57
+DIN3→OUT2 | NOTE 58
+DIN3→OUT3 | NOTE 59
+
+BLE Input / Output
+BLE→OUT1 | NOTE 60
+BLE→OUT2 | NOTE 61
+BLE→OUT3 | NOTE 62
+
+USB Input / Output
+USB→OUT1 | NOTE 63
+USB→OUT2 | NOTE 64
+USB→OUT3 | NOTE 65
+
