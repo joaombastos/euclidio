@@ -1,0 +1,62 @@
+Euclidio_mkiII
+
+Sequenciador Ritmico
+Parametros:
+Nome            |   Mapping midi        | Feedback Midi         | Mapping OSC                       | Feedback OSC                          | Defaults
+Steps           |   CC 20               | CC 20                 | /sequencer/steps (1..32)          | /sequencer/steps                      | 8
+Hits            |   CC 21               | CC 21                 | /sequencer/hits (1..32)           | /sequencer/hits                       | 4
+Offset          |   CC 22               | CC 22                 | /sequencer/offset (0..31)         | /sequencer/offset                     |
+Note            |   CC 23               | CC 23                 | /sequencer/note (0..127)          | /sequencer/note                       |
+Velocity        |   CC 19               | CC 19                 | /sequencer/velocity (0..127)      | /sequencer/velocity                   | 100
+MIDI Channel    |   CC 24               | CC 24                 | /sequencer/channel (0..15)        | /sequencer/channel                    |
+Resolution      |   CC 25               | CC 25                 | /sequencer/resolution             | /sequencer/resolution                 |
+Track           |   CC 26               | CC 26                 | /sequencer/track (1..8)           | /sequencer/track                      |
+Tempo           |   CC 28               | CC 28                 | /sequencer/tempo (30..240 BPM)    | /sequencer/tempo                      |
+Note Length     |   CC 31               | CC 31                 | /sequencer/note_length (ms)       | /sequencer/note_length                |
+Play/Stop       |   MIDI Start (0xFA) / Stop (0xFC) / Note On 0 | MIDI Start (0xFA) / Stop (0xFC) / Note 0 (127/0) | /sequencer/playstop               | /sequencer/playstop                   |
+DUB Track 1     |   NOTE 76             | NOTE 76 (127/0)       | /sequencer/dub/1                  | /sequencer/dub/1                      |
+DUB Track 2     |   NOTE 77             | NOTE 77 (127/0)       | /sequencer/dub/2                  | /sequencer/dub/2                      |
+DUB Track 3     |   NOTE 78             | NOTE 78 (127/0)       | /sequencer/dub/3                  | /sequencer/dub/3                      |
+DUB Track 4     |   NOTE 79             | NOTE 79 (127/0)       | /sequencer/dub/4                  | /sequencer/dub/4                      |
+DUB Track 5     |   NOTE 80             | NOTE 80 (127/0)       | /sequencer/dub/5                  | /sequencer/dub/5                      |
+DUB Track 6     |   NOTE 81             | NOTE 81 (127/0)       | /sequencer/dub/6                  | /sequencer/dub/6                      |
+DUB Track 7     |   NOTE 82             | NOTE 82 (127/0)       | /sequencer/dub/7                  | /sequencer/dub/7                      |
+DUB Track 8     |   NOTE 83             | NOTE 83 (127/0)       | /sequencer/dub/8                  | /sequencer/dub/8                      |
+
+
+Sequenciador Harmonico
+Parametros:
+Nome              |   Mapping midi        | Feedback Midi         | Mapping OSC                       | Feedback OSC                          |
+Tonalidade (Tonic)|   CC 40               | CC 40                 | /harmonic/tonality                | /harmonic/tonality                    |
+Escala (Scale)    |   CC 41               | CC 41                 | /harmonic/scale                   | /harmonic/scale                       |
+Escala (Scale Name)|   -                  | -                     | /harmonic/scale/name (string)     | /harmonic/scale/name                  |
+Modo (Mode)       |   CC 42               | CC 42                 | /harmonic/mode                    | /harmonic/mode                        |
+Steps             |   CC 43               | CC 43                 | /harmonic/steps (1..32)           | /harmonic/steps                       |
+Hits              |   CC 44               | CC 44                 | /harmonic/hits (1..32)            | /harmonic/hits                        |
+Offset            |   CC 45               | CC 45                 | /harmonic/offset (0..31)          | /harmonic/offset                      |
+Polyphony         |   CC 46               | CC 46                 | /harmonic/poly (1..8)             | /harmonic/poly                        |
+Velocity          |   CC 47               | CC 47                 | /harmonic/velocity (0..127)      | /harmonic/velocity                    |
+Note Length       |   CC 48               | CC 48                 | /harmonic/note_length (ms)        | /harmonic/note_length                 |
+Octave            |   CC 49               | CC 49                 | /harmonic/octave (-2..+2)         | /harmonic/octave                      |
+Resolution        |   CC 58               | CC 58                 | /harmonic/resolution (1/4,1/8,1/16)| /harmonic/resolution                 |
+Chord Select Index|   CC 50               | CC 50                 | /harmonic/chords/count (index)    | /harmonic/chords/count                |
+Chord Set Degree  |   CC 51               | CC 51                 | /harmonic/chords/set              | /harmonic/chords/set                  |
+Chord Insert      |   CC 52 (value=1)     | CC 52 (value=1)       | /harmonic/chords/insert           | /harmonic/chords/insert               |
+Chord Delete      |   CC 53 (value=1)     | CC 53 (value=1)       | /harmonic/chords/delete           | /harmonic/chords/delete               |
+Chord Slot 1     |   NOTE 92             | NOTE 92 (127/0)       | /harmonic/chords/slot/1           | /harmonic/chords/slot/1              |
+Chord Slot 2     |   NOTE 93             | NOTE 93 (127/0)       | /harmonic/chords/slot/2           | /harmonic/chords/slot/2              |
+Chord Slot 3     |   NOTE 94             | NOTE 94 (127/0)       | /harmonic/chords/slot/3           | /harmonic/chords/slot/3              |
+Chord Slot 4     |   NOTE 95             | NOTE 95 (127/0)       | /harmonic/chords/slot/4           | /harmonic/chords/slot/4              |
+Chord Slot 5     |   NOTE 96             | NOTE 96 (127/0)       | /harmonic/chords/slot/5           | /harmonic/chords/slot/5              |
+Chord Slot 6     |   NOTE 97             | NOTE 97 (127/0)       | /harmonic/chords/slot/6           | /harmonic/chords/slot/6              |
+Chord Slot 7     |   NOTE 98             | NOTE 98 (127/0)       | /harmonic/chords/slot/7           | /harmonic/chords/slot/7              |
+Chord Slot 8     |   NOTE 99             | NOTE 99 (127/0)       | /harmonic/chords/slot/8           | /harmonic/chords/slot/8              |
+Active Pista 1   |   CC 60               | CC 60                 | /harmonic/active/1                | /harmonic/active/1                   |
+Active Pista 2   |   CC 61               | CC 61                 | /harmonic/active/2                | /harmonic/active/2                   |
+Active Pista 3   |   CC 62               | CC 62                 | /harmonic/active/3                | /harmonic/active/3                   |
+Active Pista 4   |   CC 63               | CC 63                 | /harmonic/active/4                | /harmonic/active/4                   |
+Active Pista 5   |   CC 64               | CC 64                 | /harmonic/active/5                | /harmonic/active/5                   |
+Active Pista 6   |   CC 65               | CC 65                 | /harmonic/active/6                | /harmonic/active/6                   |
+Active Pista 7   |   CC 66               | CC 66                 | /harmonic/active/7                | /harmonic/active/7                   |
+Active Pista 8   |   CC 67               | CC 67                 | /harmonic/active/8                | /harmonic/active/8                   |
+
