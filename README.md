@@ -1,0 +1,267 @@
+EUCLIDIO MkIII – GUIA DO UTILIZADOR
+=================================
+
+ÍNDICE
+------
+1. Visão geral da máquina
+2. Ligações físicas e hardware
+3. Controlo principal (encoder e ecrã OLED)
+4. Modos de operação
+   4.1. Modo ROUTING (matriz MIDI)
+   4.2. Modo SEQUENCER (sequenciador euclidiano rítmico)
+   4.3. Modo HARMONIC (sequenciador harmônico)
+5. Parâmetros do sequenciador rítmico
+6. Parâmetros do sequenciador harmônico
+7. Presets e cartão SD
+8. MIDI, USB e OSC (Wi-Fi)
+9. Fluxo típico de utilização
+
+
+1. VISÃO GERAL DA MÁQUINA
+--------------------------
+O Euclidio MkIII é um sequenciador MIDI euclidiano com dois motores principais:
+- Sequenciador EUCLIDEAN (rítmico, multi‑pista) – gera padrões de “steps”/“hits”.
+- Sequenciador HARMONIC (acordes/notas) – gere escalas, acordes e distribuição harmônica.
+
+A máquina comunica por:
+- 3 portas MIDI DIN físicas (IN/OUT), 
+- MIDI USB,
+- Rede Wi-Fi com controlo/feedback via OSC.
+
+O interface de utilizador é reduzido a um único encoder rotativo com botão e um ecrã OLED 128x64.
+
+
+2. LIGAÇÕES FÍSICAS E HARDWARE
+-------------------------------
+Pinos principais (ver Pinos.h):
+- OLED I2C
+  - SDA: pino 4
+  - SCL: pino 5
+- ENCODER ROTATIVO + BOTÃO
+  - Fase A (CLK): pino 7
+  - Fase B (DT):  pino 8
+  - Botão (SW):   pino 9
+- MIDI DIN (interfaces seriais)
+  - DIN1_RX: pino 16
+  - DIN1_TX: pino 17
+  - DIN2_RX: pino 18
+  - DIN2_TX: pino 10
+  - DIN3_RX: pino 11
+  - DIN3_TX: pino 12
+
+Velocidade MIDI (todas as portas DIN):
+- 31250 baud (MIDI_BAUD_RATE).
+
+
+3. CONTROLO PRINCIPAL (ENCODER E ECRÃ OLED)
+-------------------------------------------
+Controlo é feito quase todo por um único encoder:
+- Rotação: muda parâmetros ou navega entre eles,
+- Clique curto: normalmente avança entre parâmetros dentro do modo atual,
+- Duplo clique: alterna entre SEQUENCER e HARMONIC (também pode ser disparado via OSC),
+- Clique longo: alterna entre modo ROUTING e os modos de sequenciação; abre/fecha menus de Preset.
+
+O ecrã OLED mostra:
+- Em ROUTING: matriz de roteamento entre entradas e saídas MIDI.
+- Em SEQUENCER: lista de parâmetros à esquerda + círculo euclidiano à direita.
+- Em HARMONIC: lista de parâmetros (escala, tom, polifonia, etc.) + visualização circular harmônica e lista de acordes.
+
+
+4. MODOS DE OPERAÇÃO
+---------------------
+O estado global da aplicação é controlado por AppMode (ver AppState.h / main.cpp):
+- MODE_ROUTING – edição da matriz MIDI,
+- MODE_SEQUENCER – edição do sequenciador rítmico euclidiano,
+- MODE_HARMONIC – edição do sequenciador harmônico.
+
+4.1. Modo ROUTING (matriz MIDI)
+-------------------------------
+No modo ROUTING, o ecrã mostra uma matriz 4x3 simplificada:
+- Entradas (linhas):
+  - In1, In2, In3: Portas MIDI DIN físicas,
+  - USB: porta MIDI USB de entrada.
+- Saídas (colunas):
+  - Out1, Out2, Out3: Portas MIDI DIN físicas de saída.
+
+Cada célula representa o encaminhamento de uma entrada para uma saída. Um quadrado cheio indica que a rota está ativa; um quadrado em moldura indica rota desligada. O cursor (moldura extra) indica a célula atualmente selecionada.
+
+Funções principais no ROUTING:
+- Rodar o encoder: move o cursor pela matriz (selecionando In/Out),
+- Carregar o botão ou usar o encoder conforme implementado em UI.handleInput: alterna a célula ON/OFF (RoutingMatrix::toggle).
+
+4.2. Modo SEQUENCER (sequenciador euclidiano rítmico)
+-----------------------------------------------------
+Neste modo, o euclSeq (EuclideanSequencer) gera padrões de até 8 pistas (patterns 0‑7). A UI mostra:
+- À esquerda: lista de parâmetros, um por linha (ex.: Play, Trk, Dub, Ch, Note, NtLen, Vel, Res, Stps, Hits, Ofst, Tmpo).
+- À direita: círculo euclidiano multi‑pista, com pontos/linhas para cada track ativa.
+
+Navegação básica:
+- Clique simples do encoder: muda de parâmetro selecionado (currentEditParam).
+- Rotação (quando paramEditMode ativo): altera o valor do parâmetro atual (editParam / incrementParam/decrementParam).
+- Estado PLAY/STOP controla o arranque/paragem do MidiClock e da geração de notas.
+
+4.3. Modo HARMONIC (sequenciador harmônico)
+-------------------------------------------
+O EuclideanHarmonicSequencer gere várias tracks harmônicas (até 8), cada uma com:
+- Padrão euclidiano próprio (steps, hits, offset),
+- Escala (Major, Nat.Min, Harm.Min, Mel.Min, modos, pentatónicas, etc.),
+- Tom (C, C#, D, ... B),
+- Modo de distribuição: acordes (DIST_CHORDS) ou notas individuais (DIST_NOTES),
+- Polifonia (número de vozes do acorde),
+- Canal MIDI, velocidade, comprimento de nota, oitava base, lista de graus/acordes.
+
+A UI mostra uma lista de parâmetros e, à direita, um círculo com os passos ativos e ponteiros por track, além de uma lista de acordes e o nome do acorde/nota atual ao centro.
+
+Transição de modos:
+- Duplo clique (ou OSC PATH_ENCODER_DOUBLE_CLICK): alterna entre SEQUENCER e HARMONIC.
+- Clique longo em SEQUENCER/HARMONIC: volta a ROUTING (com opção de gravar presets).
+
+
+5. PARÂMETROS DO SEQUENCIADOR RÍTMICO
+--------------------------------------
+Os parâmetros do EuclideanSequencer (ver EuclideanSequencer.h / UI.cpp) aparecem em ciclo único:
+- Play (PARAM_PLAY)
+  - Play / Stop – liga/desliga a execução. Quando em Play, o MidiClock é posto a correr.
+- Trk (PARAM_TRACK)
+  - Número da pista (1..8). Cada track tem passos, hits, nota, canal etc. próprios.
+- Dub (PARAM_DUB)
+  - Liga/desliga a track atual (setTrackEnabled). Quando OFF, a pista não toca.
+- Ch (PARAM_MIDI_CHANNEL)
+  - Canal MIDI (1..16, internamente 0..15).
+- Note (PARAM_NOTE)
+  - Nota MIDI enviada pela track (0..127).
+- NtLen (PARAM_NOTE_LENGTH)
+  - Duração da nota em milissegundos (50–700 ms).
+- Vel (PARAM_VELOCITY)
+  - Velocidade MIDI (0..127).
+- Res (PARAM_RESOLUTION)
+  - Resolução rítmica da track: 1/4, 1/8, 1/16, 1/32.
+- Stps (PARAM_STEPS)
+  - Número total de passos euclidianos (1..16).
+- Hits (PARAM_HITS)
+  - Número de “acertos”/notas dentro dos passos (1..MAX_HITS).
+- Ofst (PARAM_OFFSET)
+  - Rotação do padrão (user‑facing 1..N; internamente 0..N‑1).
+- Tmpo (PARAM_TEMPO)
+  - Quando em MASTER, controla o BPM (30–240). Ao sair dos limites, volta ao modo SLAVE.
+  - Quando em SLAVE, o clock segue relógio MIDI externo.
+
+A lógica de geração do padrão usa o algoritmo de Bjorklund: distribuição uniforme dos hits pelos steps, com rotação por offset.
+
+
+6. PARÂMETROS DO SEQUENCIADOR HARMÔNICO
+----------------------------------------
+Para cada track harmônica (1..8), há os seguintes parâmetros (UI renderHarmonic):
+- Track
+  - Número da track ativa (1..MAX_TRACKS).
+- Scale (getScaleType / setScaleType)
+  - Escalas suportadas (Major, Nat.Min, Harm.Min, Mel.Min, modos gregos, pentatónicas, blues, gypsy, japanese, hirajoshi, kumoi, arabic etc.).
+- Tone (Tonic)
+  - Tom base (C..B).
+- Modo (DistributionMode)
+  - Acordes (DIST_CHORDS) ou Notas (DIST_NOTES).
+- Active
+  - Liga/desliga a track harmônica (setActive).
+- Res
+  - Resolução harmônica: 1/4, 1/8, 1/16.
+- Steps
+  - Passos euclidianos da track.
+- Hits
+  - Número de hits harmônicos.
+- Offset
+  - Rotação do padrão harmônico.
+- Poly
+  - Polifonia (1..MAX_POLYPHONY). Define número de vozes nos acordes (até 5).
+- Chnl
+  - Canal MIDI da track harmônica.
+- Vel
+  - Velocidade MIDI.
+- Oct
+  - Oitava base (deslocamento relativo, -2..+2).
+- Len
+  - Duração de nota.
+- Chord (contagem)
+  - Número de itens na chordList da track.
+
+Abaixo da lista principal, a UI mostra a lista de acordes/graus configurados para a track, com possibilidade de seleção/edição de cada item (chordEditMode). Os nomes de acordes são formatados (ex.: Cmaj7, Dm7, G7, com extensões 9, b9, #9, 11, #11, 13, b13, conforme a polifonia).
+
+
+7. PRESETS E CARTÃO SD
+------------------------
+O PresetManager usa um cartão SD (via SdCard) com a seguinte estrutura:
+- /presets
+  - /presets/euclidean
+  - /presets/harmonic
+
+Funcionalidade principal:
+- initDirectories(): cria as pastas se não existirem.
+- saveEuclideanPreset / saveHarmonicPreset: guarda o estado atual dos sequenciadores.
+- loadEuclideanPreset / loadHarmonicPreset: carrega um preset gravado.
+
+Na UI (PresetUI):
+- Ao entrar no modo SEQUENCER a partir do ROUTING com clique longo:
+  - showLoadMenu: pergunta se deve carregar um preset (Load) ou usar default.
+  - Se Load: selectPreset apresenta lista de presets para escolher.
+- Ao sair de SEQUENCER/HARMONIC para ROUTING com clique longo:
+  - showSaveMenu: pergunta se quer gravar (Save) ou não.
+  - Se Save: selectPreset permite escolher nome/posição e os dois presets (rítmico e harmônico) são gravados.
+
+
+8. MIDI, USB E OSC (WI-FI)
+---------------------------
+MIDI físico e USB:
+- 3 portas DIN físicas configuradas em RoutingMatrix para entrada/saída.
+- Porta USB MIDI (Adafruit_USBD_MIDI usb_midi) usada tanto para entrada quanto para saída.
+- O MidiClock pode atuar como MASTER ou SLAVE, enviando msgs 0xF8 (Clock), 0xFA (Start), 0xFC (Stop) de acordo com o modo.
+
+OSC / Wi-Fi (OSCController / OSCMapping):
+- O OSCController inicializa um ponto de acesso Wi-Fi com SSID/PASSWORD definidos no código.
+- Porta local UDP padrão: 8000.
+- Clientes P2P (até MAX_P2P_CLIENTS) podem ser registados para envio de feedback e controlo.
+
+Principais caminhos OSC (ver OSCMapping.h):
+- Sequenciador rítmico:
+  - PATH_STEPS, PATH_HITS, PATH_OFFSET, PATH_NOTE, PATH_VELOCITY,
+    PATH_CHANNEL, PATH_RESOLUTION, PATH_TRACK,
+  - PATH_PLAYSTOP, PATH_TEMPO, PATH_NOTE_LENGTH,
+  - PATH_DUB_BASE para ligar/desligar pistas.
+- Sequenciador harmônico:
+  - PATH_HARMONIC_TONALITY, PATH_HARMONIC_SCALE, PATH_HARMONIC_SCALE_NAME,
+    PATH_HARMONIC_MODE, PATH_HARMONIC_STEPS, PATH_HARMONIC_HITS,
+    PATH_HARMONIC_OFFSET, PATH_HARMONIC_POLY, PATH_HARMONIC_VELOCITY,
+    PATH_HARMONIC_NOTE_LENGTH, PATH_HARMONIC_OCTAVE, PATH_HARMONIC_ACTIVE,
+    PATH_HARMONIC_TRACK, PATH_HARMONIC_RESOLUTION, PATH_HARMONIC_CHANNEL,
+    PATH_HARMONIC_CHORDS_COUNT e comandos de edição de chord list.
+- Encoder via OSC:
+  - PATH_ENCODER_DOUBLE_CLICK: simula duplo clique (entra/sai de HARMONIC).
+  - PATH_ENCODER_LONG_PRESS: simula clique longo (entra/sai de ROUTING/presets).
+- Matriz de roteamento:
+  - PATH_ROUTING_TOGGLE: alterna uma célula da RoutingMatrix.
+
+Feedback OSC:
+- sendAllFeedback / sendAllFeedbackForced enviam o estado completo do sequenciador rítmico.
+- sendAllHarmonicFeedback / sendAllHarmonicFeedbackForced fazem o mesmo para o harmônico.
+
+
+9. FLUXO TÍPICO DE UTILIZAÇÃO
+------------------------------
+Exemplo de workflow:
+1. Ligar a máquina; a animação de arranque aparece no OLED.
+2. No modo ROUTING, configurar a matriz:
+   - Selecionar quais entradas DIN/USB vão para quais saídas DIN.
+3. Clique longo no encoder:
+   - Entrar no modo SEQUENCER.
+   - Opcionalmente, carregar um preset existente.
+4. Em SEQUENCER:
+   - Usar o encoder para selecionar Track, Steps, Hits, Offset, Note, Vel, etc.
+   - Ajustar Tmpo (BPM) ou deixar em SLAVE se usar clock externo.
+   - Colocar Play em “Play” para iniciar.
+5. Duplo clique no encoder:
+   - Entrar no modo HARMONIC.
+   - Ajustar escala, tom, polifonia, active On, lista de acordes.
+6. Durante a performance, controlar parâmetros via OSC ou MIDI CC (MidiSequencerController) conforme mapeamento.
+7. Ao terminar:
+   - Clique longo: opção de gravar presets rítmico + harmônico no cartão SD.
+   - Voltar ao modo ROUTING ou desligar o aparelho.
+
+Este guia foi gerado automaticamente a partir da análise do código‑fonte do projeto (headers e .cpp), refletindo a estrutura e os parâmetros efetivamente implementados no firmware do Euclidio MkIII.
